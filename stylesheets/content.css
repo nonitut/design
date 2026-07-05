@@ -360,7 +360,9 @@ footer{
 
 
 @media(max-width:520px){
-  .hero-h1{font-size:clamp(30px,10vw,44px);}
+  .hero-h1{font-size:clamp(30px,10vw,44px);
+           color: #fff!important;
+          }
   .m-stat .num{font-size:clamp(38px,15vw,58px);}
   .students{display:none;}
   .m-stat .label{width:80vw;}

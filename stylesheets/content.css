@@ -1,28 +1,4 @@
 *{ box-sizing: border-box;}
-html, body{ 
-    width: 100%;
-    overflow-x: hidden;
-    height: 100%;
-}
-
-@font-face {
-font-family: "CarlaSansLight";
-src: url("../fonts/CarlaSansLight.ttf") format("truetype");
-font-style: Light;
-font-weight: Light;
-}
-
-p{
-  font-family: var(--mono);
-  text-transform: uppercase; 
- }
-
-#integriruemtext{
-    margin: 10% 40%;
-
-}
-
-
 :root{
   --ink:#0A0A0A;
   --paper:#FFFFFF;
@@ -33,7 +9,23 @@ p{
   --display:'Archivo', sans-serif;
   --mono:'IBM Plex Mono', monospace;
 }
-*{margin:0; padding:0; box-sizing:border-box;}
+html, body{ 
+    width: 100%;
+    overflow-x: hidden;
+    height: 100%;
+    font-family: var(--mono);
+  text-transform: uppercase; 
+}
+
+p{
+  font-family: var(--mono);
+  text-transform: uppercase; 
+ }
+
+#integriruemtext{
+    margin: 10% 40%;
+}
+
 
 a{color:inherit; text-decoration:none;}
 img{display:block; max-width:100%;}
@@ -102,7 +94,6 @@ header{
 }
 .eyebrow-row span:last-child{color:var(--accent);}
 
-/* ===== HERO — asymmetric, signature glyph ===== */
 .hero-grid{
   display:grid; grid-template-columns:1.5fr 1fr; border-bottom:1px solid var(--line);
   position:relative; overflow:hidden;
@@ -126,7 +117,7 @@ header{
   font-weight:900; font-size:clamp(40px,6.4vw,84px); line-height:0.96; text-transform:uppercase;
   letter-spacing:-0.02em; position:relative; margin-bottom:26px;
 }
-/* .hero-h1 .accent{color:var(--accent);} */
+
 .hero-lead{
       font-family: var(--mono);
       text-transform: uppercase;

@@ -160,10 +160,6 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
-    // ==========================
-    // GALLERY (HORIZONTAL SCROLL)
-    // ==========================
-
     const wrapper = document.querySelector(".gallery-wrapper");
     const track = document.querySelector(".gallery-track");
 

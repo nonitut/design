@@ -113,7 +113,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 duration: .45,
                 scrollTrigger: {
                     trigger: item,
-                    start: "top 92%",
+                    start: "top 50%",
                     once: true
                 }
             });
@@ -127,7 +127,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     ease: "back.out(2.4)",
                     scrollTrigger: {
                         trigger: item,
-                        start: "top 92%",
+                        start: "top 50%",
                         once: true
                     }
                 });
@@ -148,7 +148,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
             ScrollTrigger.create({
                 trigger: el,
-                start: "top 88%",
+                start: "top 50%",
                 once: true,
                 onEnter: () => {
                     gsap.to(counter, {
@@ -171,7 +171,7 @@ document.addEventListener("DOMContentLoaded", () => {
             y: 24,
             scrollTrigger: {
                 trigger: ".cta-strip",
-                start: "top 92%",
+                start: "top 50%",
                 once: true
             }
         });

@@ -94,7 +94,7 @@ document.addEventListener("DOMContentLoaded", () => {
             x: -12,
             scrollTrigger: {
                 trigger: item,
-                start: "top 85%",
+                start: "top 75%",
                 once: true
             }
         });

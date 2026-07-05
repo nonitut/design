@@ -15,6 +15,7 @@ font-weight: Light;
 p{
   font-family: var(--mono);
   text-transform: uppercase;
+  color: var(--accent);  
  }
 
 #integriruemtext{
@@ -380,6 +381,11 @@ footer{
 .m-photo {
 display: none;
 }
+    p{
+  font-family: var(--mono);
+  text-transform: uppercase;
+  color: var(--accent)!important;  
+ }
 }
 
 @media (prefers-reduced-motion: reduce){ *{transition:none !important;} }

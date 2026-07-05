@@ -1,13 +1,11 @@
 document.addEventListener("DOMContentLoaded", () => {
 
-    // ==========================
-    // Кастомный курсор
-    // ==========================
-
+    const isTouch = window.matchMedia("(pointer: coarse)").matches;
+    const isFinePointer = window.matchMedia("(pointer: fine)").matches;
     const dot = document.getElementById("cursor-dot");
     const ring = document.getElementById("cursor-ring");
 
-    if (dot && ring) {
+    if (dot && ring && isFinePointer) {
 
         let mouseX = 0;
         let mouseY = 0;
@@ -40,9 +38,6 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // ==========================
-    // WhatsApp
-    // ==========================
 
     const WA_LINK =
         "https://wa.me/79167797756?text=%D0%A5%D0%BE%D1%87%D1%83%20%D0%BD%D0%B0%20%D0%BA%D0%BE%D0%BD%D1%81%D1%83%D0%BB%D1%8C%D1%82%D0%B0%D1%86%D0%B8%D1%8E";
@@ -52,12 +47,9 @@ document.addEventListener("DOMContentLoaded", () => {
     ).forEach(btn => {
         btn.href = WA_LINK;
         btn.target = "_blank";
-        btn.rel = "noopener";
+        btn.rel = "noopener noreferrer";
     });
 
-    // ==========================
-    // GSAP init
-    // ==========================
 
     const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
@@ -71,7 +63,7 @@ document.addEventListener("DOMContentLoaded", () => {
     gsap.registerPlugin(ScrollTrigger);
 
     // ==========================
-    // HERO
+    // HERO ANIMATION
     // ==========================
 
     gsap.timeline({ defaults: { ease: "power3.out" } })
@@ -102,7 +94,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     // ==========================
-    // PATH
+    // PATH ITEMS
     // ==========================
 
     gsap.utils.toArray(".path-item").forEach(item => {
@@ -134,10 +126,6 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
-    // ==========================
-    // COUNTERS
-    // ==========================
-
     document.querySelectorAll("[data-count]").forEach(el => {
 
         const counter = { value: 0 };
@@ -160,9 +148,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     });
 
-    // ==========================
-    // CTA
-    // ==========================
+
 
     gsap.from(".cta-strip", {
         opacity: 0,
@@ -175,54 +161,55 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     // ==========================
-    // HORIZONTAL GALLERY (FIXED)
+    // GALLERY (HORIZONTAL SCROLL)
     // ==========================
 
     const wrapper = document.querySelector(".gallery-wrapper");
     const track = document.querySelector(".gallery-track");
 
-    if (wrapper && track) {
+    let tween;
+    let maxScroll = 0;
 
-        let tween;
-        let maxScroll = 0;
+    function initGallery() {
 
-        function initGallery() {
+        if (!wrapper || !track) return;
 
-            if (tween) tween.kill();
-            ScrollTrigger.getById?.("gallery")?.kill();
+        if (tween) tween.kill();
+        ScrollTrigger.getById?.("gallery")?.kill();
 
-            gsap.set(track, { x: 0 });
+        gsap.set(track, { x: 0 });
 
-            maxScroll = track.scrollWidth - window.innerWidth;
+        maxScroll = track.scrollWidth - window.innerWidth;
 
-            if (maxScroll <= 0) return;
+        if (maxScroll <= 0) return;
 
-            tween = gsap.to(track, {
-                x: -maxScroll,
-                ease: "none",
-                scrollTrigger: {
-                    id: "gallery",
-                    trigger: wrapper,
-                    start: "top top",
-                    end: () => "+=" + maxScroll,
-                    pin: true,
-                    scrub: 1,
-                    invalidateOnRefresh: true
-                }
-            });
-        }
+        tween = gsap.to(track, {
+            x: -maxScroll,
+            ease: "none",
+            scrollTrigger: {
+                id: "gallery",
+                trigger: wrapper,
+                start: "top top",
+                end: () => "+=" + maxScroll,
+                pin: true,
+                scrub: 1,
+                invalidateOnRefresh: true
+            }
+        });
+    }
 
+    initGallery();
+
+    window.addEventListener("resize", () => {
         initGallery();
+        ScrollTrigger.refresh();
+    });
 
-        window.addEventListener("resize", initGallery);
 
-        // ==========================
-        // FIX: wheel smooth control inside gallery
-        // ==========================
+
+    if (wrapper && tween && isFinePointer) {
 
         wrapper.addEventListener("wheel", (e) => {
-
-            if (!tween) return;
 
             e.preventDefault();
 
@@ -230,13 +217,14 @@ document.addEventListener("DOMContentLoaded", () => {
             const current = st.progress * maxScroll;
 
             let next = current + e.deltaY * 0.6;
-
             next = Math.max(0, Math.min(maxScroll, next));
 
-            st.scroll(st.start + next / maxScroll * (st.end - st.start));
+            st.scroll(
+                st.start +
+                (next / maxScroll) * (st.end - st.start)
+            );
 
         }, { passive: false });
-
     }
 
 });

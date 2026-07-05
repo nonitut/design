@@ -358,7 +358,7 @@ footer{
 @media(max-width:520px){
 .hero-h1{font-size:clamp(30px,10vw,44px);
 color: #fff!important;}
-body, p, h1, h2, h3, li {  color: #00000!important; }
+body, p, h1, h2, h3, li {  color: red!important; }
   .m-stat .num{font-size:clamp(38px,15vw,58px);}
   .students{display:none;}
   .m-stat .label{width:80vw;}
@@ -366,7 +366,7 @@ body, p, h1, h2, h3, li {  color: #00000!important; }
 .path-h, .path-n, .path-t, p, .hero-lead, .intro-cols p, .track-feature p, .m-text, .path-item {
        font-family: var(--mono);
     text-transform: uppercase;
-    color: var(--ink)!important;
+    color: red!important;
   }
 }
 @media (prefers-reduced-motion: reduce){ *{transition:none !important;} }

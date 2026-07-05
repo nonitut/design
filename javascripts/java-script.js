@@ -3,7 +3,13 @@ document.addEventListener("DOMContentLoaded", () => {
     const dot = document.getElementById("cursor-dot");
     const ring = document.getElementById("cursor-ring");
 
-    if (dot && ring) {
+    const isMobile = window.innerWidth <= 768;
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const isFinePointer = window.matchMedia("(pointer: fine)").matches;
+    const disableGSAP = isMobile || reduceMotion || !window.gsap;
+
+    if (dot && ring && isFinePointer) {
+
         let mouseX = 0, mouseY = 0;
         let ringX = 0, ringY = 0;
 
@@ -36,13 +42,25 @@ document.addEventListener("DOMContentLoaded", () => {
         btn.rel = "noopener noreferrer";
     });
 
-    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    const isMobile = window.innerWidth <= 768;
+    if (disableGSAP) {
 
-    if (!window.gsap || reduceMotion) {
+        document.querySelectorAll(".reveal, .path-item").forEach(el => {
+            el.style.opacity = 1;
+            el.style.transform = "none";
+        });
+
         document.querySelectorAll("[data-count]").forEach(el => {
             el.textContent = el.dataset.count + (el.dataset.suffix || "");
         });
+
+        const wrapper = document.querySelector(".gallery-wrapper");
+        const track = document.querySelector(".gallery-track");
+
+        if (wrapper && track) {
+            const maxScroll = track.scrollWidth - wrapper.offsetWidth;
+            track.style.transform = "translateX(0px)";
+        }
+
         return;
     }
 
@@ -70,6 +88,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     gsap.utils.toArray(".path-item").forEach(item => {
+
         gsap.from(item, {
             opacity: 0,
             x: -12,
@@ -97,6 +116,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     document.querySelectorAll("[data-count]").forEach(el => {
+
         const obj = { v: 0 };
 
         ScrollTrigger.create({
@@ -121,6 +141,7 @@ document.addEventListener("DOMContentLoaded", () => {
     let tween;
 
     function initGallery() {
+
         if (!wrapper || !track) return;
 
         if (tween) tween.kill();
@@ -128,7 +149,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         gsap.set(track, { x: 0 });
 
-        const maxScroll = track.scrollWidth - window.innerWidth;
+        const maxScroll = track.scrollWidth - wrapper.offsetWidth;
 
         if (maxScroll <= 0) return;
 
@@ -147,41 +168,8 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    function waitImages() {
-        const imgs = document.querySelectorAll(".gallery-track img");
-        let loaded = 0;
+    initGallery();
 
-        if (!imgs.length) {
-            initGallery();
-            ScrollTrigger.refresh();
-            return;
-        }
-
-        imgs.forEach(img => {
-            if (img.complete) {
-                loaded++;
-            } else {
-                img.onload = () => {
-                    loaded++;
-                    if (loaded === imgs.length) {
-                        initGallery();
-                        ScrollTrigger.refresh();
-                    }
-                };
-            }
-        });
-
-        if (loaded === imgs.length) {
-            initGallery();
-            ScrollTrigger.refresh();
-        }
-    }
-
-    waitImages();
-
-    window.addEventListener("resize", () => {
-        initGallery();
-        ScrollTrigger.refresh();
-    });
+    window.addEventListener("resize", initGallery);
 
 });

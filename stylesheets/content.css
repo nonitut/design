@@ -368,18 +368,13 @@ footer{
 color: var(--ink)!important; 
 }
 
-  p{
-    font-family: var(--mono);
-    text-transform: uppercase;
-    color: var(--ink)!important;
-
-  }
-
-  .hero-lead,
+  p, .hero-lead,
   .intro-cols p,
   .track-feature p,
   .m-text {
-    color: var(--ink);
+       font-family: var(--mono);
+    text-transform: uppercase;
+    color: var(--ink)!important;
   }
 }
 

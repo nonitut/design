@@ -370,7 +370,7 @@ color: #fff!important;}
   .mosaic{
       display: none;
 }
-  .hero-facts{
+  .hero-facts, .gallery-wrapper{
      display: none;
   }
 }

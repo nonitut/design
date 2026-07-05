@@ -384,7 +384,7 @@ display: none;
     p{
   font-family: var(--mono);
   text-transform: uppercase;
-  color: var(--accent)!important;  
+  color: green!important;  
  }
 }
 

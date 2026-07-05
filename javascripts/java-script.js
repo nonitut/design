@@ -1,25 +1,18 @@
 document.addEventListener("DOMContentLoaded", () => {
 
-    const isTouch = window.matchMedia("(pointer: coarse)").matches;
-    const isFinePointer = window.matchMedia("(pointer: fine)").matches;
-    const isMobile = window.innerWidth <= 768 || isTouch;
-    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-
     const dot = document.getElementById("cursor-dot");
     const ring = document.getElementById("cursor-ring");
 
-    // ==========================
-    // CURSOR (desktop only)
-    // ==========================
-    if (dot && ring && isFinePointer) {
+    if (dot && ring) {
 
-        let mouseX = 0, mouseY = 0;
-        let ringX = 0, ringY = 0;
+        let mouseX = 0;
+        let mouseY = 0;
+        let ringX = 0;
+        let ringY = 0;
 
         window.addEventListener("mousemove", (e) => {
             mouseX = e.clientX;
             mouseY = e.clientY;
-
             dot.style.left = mouseX + "px";
             dot.style.top = mouseY + "px";
         });
@@ -27,220 +20,196 @@ document.addEventListener("DOMContentLoaded", () => {
         function loop() {
             ringX += (mouseX - ringX) * 0.18;
             ringY += (mouseY - ringY) * 0.18;
-
             ring.style.left = ringX + "px";
             ring.style.top = ringY + "px";
-
             requestAnimationFrame(loop);
         }
+
         loop();
 
-        document.querySelectorAll("a, .track-feature, .track-small, .work")
-            .forEach(el => {
-                el.addEventListener("mouseenter", () => ring.classList.add("big"));
-                el.addEventListener("mouseleave", () => ring.classList.remove("big"));
-            });
+        document.querySelectorAll("a, .track-feature, .track-small, .work").forEach(el => {
+            el.addEventListener("mouseenter", () => ring.classList.add("big"));
+            el.addEventListener("mouseleave", () => ring.classList.remove("big"));
+        });
     }
 
-    // ==========================
-    // WHATSAPP LINKS
-    // ==========================
     const WA_LINK = "https://wa.me/79167797756?text=%D0%A5%D0%BE%D1%87%D1%83%20%D0%BD%D0%B0%20%D0%BA%D0%BE%D0%BD%D1%81%D1%83%D0%BB%D1%8C%D1%82%D0%B0%D1%86%D0%B8%D1%8E";
 
-    document.querySelectorAll(
-        ".nav-cta, .hero-right-cell .btn-main, .cta-strip .btn-invert"
-    ).forEach(btn => {
+    document.querySelectorAll(".nav-cta, .hero-right-cell .btn-main, .cta-strip .btn-invert").forEach(btn => {
         btn.href = WA_LINK;
         btn.target = "_blank";
         btn.rel = "noopener noreferrer";
     });
 
-    // ==========================
-    // DISABLE ANIMATIONS ON MOBILE
-    // ==========================
-    const disableGSAP = isMobile || reduceMotion || !window.gsap;
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const isMobile = window.innerWidth <= 768;
 
-    if (disableGSAP) {
+    if (!window.gsap || reduceMotion) {
         document.querySelectorAll("[data-count]").forEach(el => {
             el.textContent = el.dataset.count + (el.dataset.suffix || "");
         });
-
-        document.querySelectorAll(".reveal").forEach(el => {
-            el.style.opacity = 1;
-            el.style.transform = "none";
-        });
-
-        document.querySelectorAll(".path-item").forEach(el => {
-            el.style.opacity = 1;
-            el.style.transform = "none";
-        });
-
         return;
     }
 
     gsap.registerPlugin(ScrollTrigger);
 
-    // ==========================
-    // HERO
-    // ==========================
-    gsap.timeline({ defaults: { ease: "power3.out" } })
-        .from(".hero-kicker", { opacity: 0, y: 14, duration: .5 })
-        .from(".hero-h1", { opacity: 0, y: 26, duration: .7 }, "-=0.25")
-        .from(".hero-lead", { opacity: 0, y: 14, duration: .5 }, "-=0.35")
-        .from(".hero-right-cell", { opacity: 0, x: 18, duration: .5 }, "-=0.4")
-        .from(".eyebrow-row", { opacity: 0, duration: .4 }, 0);
+    if (!isMobile) {
+        gsap.timeline({ defaults: { ease: "power3.out" } })
+            .from(".hero-kicker", { opacity: 0, y: 14, duration: .5 })
+            .from(".hero-h1", { opacity: 0, y: 26, duration: .7 }, "-=0.25")
+            .from(".hero-lead", { opacity: 0, y: 14, duration: .5 }, "-=0.35")
+            .from(".hero-right-cell", { opacity: 0, x: 18, duration: .5 }, "-=0.4");
+    }
 
-    // ==========================
-    // REVEAL
-    // ==========================
-    gsap.set(".reveal", { opacity: 0, y: 22 });
+    if (!isMobile) {
 
-    ScrollTrigger.batch(".reveal", {
-        start: "top 85%",
-        once: true,
-        onEnter: batch => {
-            gsap.to(batch, {
-                opacity: 1,
-                y: 0,
-                duration: 0.6,
-                stagger: 0.08
-            });
-        }
-    });
+        gsap.set(".reveal", { opacity: 0, y: 22 });
 
-    // ==========================
-    // PATH
-    // ==========================
-    gsap.utils.toArray(".path-item").forEach(item => {
-
-        gsap.from(item, {
-            opacity: 0,
-            x: -12,
-            duration: 0.45,
-            scrollTrigger: {
-                trigger: item,
-                start: "top 85%",
-                once: true
+        ScrollTrigger.batch(".reveal", {
+            start: "top 85%",
+            once: true,
+            onEnter: batch => {
+                gsap.to(batch, {
+                    opacity: 1,
+                    y: 0,
+                    duration: .6,
+                    stagger: .08
+                });
             }
         });
 
-        const dot = item.querySelector(".path-dot");
+        gsap.utils.toArray(".path-item").forEach(item => {
 
-        if (dot) {
-            gsap.from(dot, {
-                scale: 0,
-                duration: 0.4,
-                ease: "back.out(2.4)",
+            gsap.from(item, {
+                opacity: 0,
+                x: -12,
+                duration: .45,
                 scrollTrigger: {
                     trigger: item,
                     start: "top 85%",
                     once: true
                 }
             });
-        }
-    });
 
-    // ==========================
-    // COUNTERS
-    // ==========================
-    document.querySelectorAll("[data-count]").forEach(el => {
+            const d = item.querySelector(".path-dot");
 
-        const obj = { v: 0 };
-
-        ScrollTrigger.create({
-            trigger: el,
-            start: "top 85%",
-            once: true,
-            onEnter: () => {
-                gsap.to(obj, {
-                    v: Number(el.dataset.count),
-                    duration: 1,
-                    onUpdate: () => {
-                        el.textContent = Math.round(obj.v) + (el.dataset.suffix || "");
+            if (d) {
+                gsap.from(d, {
+                    scale: 0,
+                    duration: .4,
+                    ease: "back.out(2.4)",
+                    scrollTrigger: {
+                        trigger: item,
+                        start: "top 85%",
+                        once: true
                     }
                 });
             }
         });
-    });
 
-    // ==========================
-    // CTA
-    // ==========================
-    gsap.from(".cta-strip", {
-        opacity: 0,
-        y: 24,
-        scrollTrigger: {
-            trigger: ".cta-strip",
-            start: "top 90%",
-            once: true
-        }
-    });
+        document.querySelectorAll("[data-count]").forEach(el => {
 
-    // ==========================
-    // HORIZONTAL GALLERY (FIXED + SAFE)
-    // ==========================
-    const wrapper = document.querySelector(".gallery-wrapper");
-    const track = document.querySelector(".gallery-track");
+            const obj = { v: 0 };
 
-    let tween = null;
-    let maxScroll = 0;
+            ScrollTrigger.create({
+                trigger: el,
+                start: "top 85%",
+                once: true,
+                onEnter: () => {
+                    gsap.to(obj, {
+                        v: Number(el.dataset.count),
+                        duration: 1,
+                        onUpdate: () => {
+                            el.textContent = Math.round(obj.v) + (el.dataset.suffix || "");
+                        }
+                    });
+                }
+            });
+        });
 
-    function initGallery() {
-        if (!wrapper || !track) return;
-
-        if (tween) tween.kill();
-        ScrollTrigger.getById("gallery")?.kill();
-
-        gsap.set(track, { x: 0 });
-
-        maxScroll = track.scrollWidth - window.innerWidth;
-
-        if (maxScroll <= 0) return;
-
-        tween = gsap.to(track, {
-            x: -maxScroll,
-            ease: "none",
+        gsap.from(".cta-strip", {
+            opacity: 0,
+            y: 24,
             scrollTrigger: {
-                id: "gallery",
-                trigger: wrapper,
-                start: "top top",
-                end: () => "+=" + maxScroll,
-                pin: true,
-                scrub: 1,
-                invalidateOnRefresh: true
+                trigger: ".cta-strip",
+                start: "top 90%",
+                once: true
             }
         });
     }
 
-    initGallery();
+    const wrapper = document.querySelector(".gallery-wrapper");
+    const track = document.querySelector(".gallery-track");
 
-    window.addEventListener("resize", () => {
-        initGallery();
-        ScrollTrigger.refresh();
-    });
+    if (wrapper && track) {
 
-    // IMPORTANT FIX:
-    // wheel ONLY if tween exists AND not mobile
-    if (wrapper && isFinePointer) {
-        wrapper.addEventListener("wheel", (e) => {
+        let tween;
+        let maxScroll = 0;
 
-            if (!tween || !tween.scrollTrigger) return;
+        function calc() {
+            maxScroll = track.scrollWidth - window.innerWidth;
+        }
 
-            e.preventDefault();
+        function init() {
 
-            const st = tween.scrollTrigger;
-            const current = st.progress * maxScroll;
+            if (tween) tween.kill();
+            ScrollTrigger.getById("gallery")?.kill();
 
-            const next = Math.max(
-                0,
-                Math.min(maxScroll, current + e.deltaY * 0.6)
-            );
+            gsap.set(track, { x: 0 });
 
-            st.scroll(
-                st.start + (next / maxScroll) * (st.end - st.start)
-            );
+            calc();
 
-        }, { passive: false });
+            if (maxScroll <= 0) return;
+
+            tween = gsap.to(track, {
+                x: -maxScroll,
+                ease: "none",
+                scrollTrigger: {
+                    id: "gallery",
+                    trigger: wrapper,
+                    start: "top top",
+                    end: () => "+=" + maxScroll,
+                    pin: true,
+                    scrub: 1,
+                    invalidateOnRefresh: true
+                }
+            });
+
+            ScrollTrigger.refresh();
+        }
+
+        function debounce(fn, t) {
+            let id;
+            return () => {
+                clearTimeout(id);
+                id = setTimeout(fn, t);
+            };
+        }
+
+        init();
+
+        window.addEventListener("resize", debounce(init, 150));
+
+        window.addEventListener("load", () => {
+            init();
+        });
+
+        if (!isMobile) {
+            wrapper.addEventListener("wheel", (e) => {
+
+                if (!tween) return;
+
+                e.preventDefault();
+
+                const st = tween.scrollTrigger;
+                const current = st.progress * maxScroll;
+
+                let next = current + e.deltaY * 0.6;
+                next = Math.max(0, Math.min(maxScroll, next));
+
+                st.scroll(st.start + (next / maxScroll) * (st.end - st.start));
+
+            }, { passive: false });
+        }
     }
-
 });

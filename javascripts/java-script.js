@@ -7,9 +7,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const dot = document.getElementById("cursor-dot");
     const ring = document.getElementById("cursor-ring");
 
-    // ==========================
-    // CURSOR (desktop only)
-    // ==========================
+
     if (dot && ring && isFinePointer) {
 
         let mouseX = 0;
@@ -43,9 +41,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // ==========================
-    // WHATSAPP LINKS
-    // ==========================
+
     const WA_LINK =
         "https://wa.me/79167797756?text=%D0%A5%D0%BE%D1%87%D1%83%20%D0%BD%D0%B0%20%D0%BA%D0%BE%D0%BD%D1%81%D1%83%D0%BB%D1%8C%D1%82%D0%B0%D1%86%D0%B8%D1%8E";
 
@@ -57,9 +53,7 @@ document.addEventListener("DOMContentLoaded", () => {
         btn.rel = "noopener noreferrer";
     });
 
-    // ==========================
-    // GSAP SAFETY
-    // ==========================
+
     const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
     const disableAnimations = isMobile || reduceMotion || !window.gsap;
@@ -82,9 +76,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     gsap.registerPlugin(ScrollTrigger);
 
-    // ==========================
-    // HERO (desktop only animation)
-    // ==========================
+
     if (!isMobile) {
         gsap.timeline({ defaults: { ease: "power3.out" } })
             .from(".hero-kicker", { opacity: 0, y: 14, duration: .5 })
@@ -94,9 +86,6 @@ document.addEventListener("DOMContentLoaded", () => {
             .from(".eyebrow-row", { opacity: 0, duration: .4 }, 0);
     }
 
-    // ==========================
-    // REVEAL (fast or full)
-    // ==========================
     if (!isMobile) {
         gsap.set(".reveal", { opacity: 0, y: 22 });
 
@@ -115,9 +104,6 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // ==========================
-    // PATH ITEMS
-    // ==========================
     if (!isMobile) {
         gsap.utils.toArray(".path-item").forEach(item => {
 
@@ -154,9 +140,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // ==========================
-    // COUNTERS
-    // ==========================
+
     if (!isMobile) {
         document.querySelectorAll("[data-count]").forEach(el => {
 
@@ -181,9 +165,6 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // ==========================
-    // CTA
-    // ==========================
     if (!isMobile) {
         gsap.from(".cta-strip", {
             opacity: 0,
@@ -196,9 +177,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // ==========================
-    // HORIZONTAL GALLERY
-    // ==========================
+
     const wrapper = document.querySelector(".gallery-wrapper");
     const track = document.querySelector(".gallery-track");
 

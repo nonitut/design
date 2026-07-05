@@ -2,9 +2,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const isTouch = window.matchMedia("(pointer: coarse)").matches;
     const isFinePointer = window.matchMedia("(pointer: fine)").matches;
+    const isMobile = window.innerWidth <= 768 || isTouch;
+
     const dot = document.getElementById("cursor-dot");
     const ring = document.getElementById("cursor-ring");
 
+    // ==========================
+    // CURSOR (desktop only)
+    // ==========================
     if (dot && ring && isFinePointer) {
 
         let mouseX = 0;
@@ -38,7 +43,9 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-
+    // ==========================
+    // WHATSAPP LINKS
+    // ==========================
     const WA_LINK =
         "https://wa.me/79167797756?text=%D0%A5%D0%BE%D1%87%D1%83%20%D0%BD%D0%B0%20%D0%BA%D0%BE%D0%BD%D1%81%D1%83%D0%BB%D1%8C%D1%82%D0%B0%D1%86%D0%B8%D1%8E";
 
@@ -50,12 +57,25 @@ document.addEventListener("DOMContentLoaded", () => {
         btn.rel = "noopener noreferrer";
     });
 
-
+    // ==========================
+    // GSAP SAFETY
+    // ==========================
     const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-    if (!window.gsap || reduceMotion) {
+    const disableAnimations = isMobile || reduceMotion || !window.gsap;
+
+    // instant counters fallback
+    if (disableAnimations) {
         document.querySelectorAll("[data-count]").forEach(el => {
             el.textContent = el.dataset.count + (el.dataset.suffix || "");
+        });
+    }
+
+    if (disableAnimations || !window.gsap) {
+        // быстрый reveal без анимаций
+        document.querySelectorAll(".reveal").forEach(el => {
+            el.style.opacity = 1;
+            el.style.transform = "none";
         });
         return;
     }
@@ -63,103 +83,122 @@ document.addEventListener("DOMContentLoaded", () => {
     gsap.registerPlugin(ScrollTrigger);
 
     // ==========================
-    // HERO ANIMATION
+    // HERO (desktop only animation)
     // ==========================
-
-    gsap.timeline({ defaults: { ease: "power3.out" } })
-        .from(".hero-kicker", { opacity: 0, y: 14, duration: .5 })
-        .from(".hero-h1", { opacity: 0, y: 26, duration: .7 }, "-=0.25")
-        .from(".hero-lead", { opacity: 0, y: 14, duration: .5 }, "-=0.35")
-        .from(".hero-right-cell", { opacity: 0, x: 18, duration: .5 }, "-=0.4")
-        .from(".eyebrow-row", { opacity: 0, duration: .4 }, 0);
+    if (!isMobile) {
+        gsap.timeline({ defaults: { ease: "power3.out" } })
+            .from(".hero-kicker", { opacity: 0, y: 14, duration: .5 })
+            .from(".hero-h1", { opacity: 0, y: 26, duration: .7 }, "-=0.25")
+            .from(".hero-lead", { opacity: 0, y: 14, duration: .5 }, "-=0.35")
+            .from(".hero-right-cell", { opacity: 0, x: 18, duration: .5 }, "-=0.4")
+            .from(".eyebrow-row", { opacity: 0, duration: .4 }, 0);
+    }
 
     // ==========================
-    // REVEAL
+    // REVEAL (fast or full)
     // ==========================
+    if (!isMobile) {
+        gsap.set(".reveal", { opacity: 0, y: 22 });
 
-    gsap.set(".reveal", { opacity: 0, y: 22 });
-
-    ScrollTrigger.batch(".reveal", {
-        start: "top 88%",
-        once: true,
-        onEnter: batch => {
-            gsap.to(batch, {
-                opacity: 1,
-                y: 0,
-                duration: .6,
-                stagger: .08,
-                ease: "power3.out"
-            });
-        }
-    });
+        ScrollTrigger.batch(".reveal", {
+            start: "top 88%",
+            once: true,
+            onEnter: batch => {
+                gsap.to(batch, {
+                    opacity: 1,
+                    y: 0,
+                    duration: .6,
+                    stagger: .08,
+                    ease: "power3.out"
+                });
+            }
+        });
+    }
 
     // ==========================
     // PATH ITEMS
     // ==========================
+    if (!isMobile) {
+        gsap.utils.toArray(".path-item").forEach(item => {
 
-    gsap.utils.toArray(".path-item").forEach(item => {
-
-        gsap.from(item, {
-            opacity: 0,
-            x: -12,
-            duration: .45,
-            scrollTrigger: {
-                trigger: item,
-                start: "top 92%",
-                once: true
-            }
-        });
-
-        const dot = item.querySelector(".path-dot");
-
-        if (dot) {
-            gsap.from(dot, {
-                scale: 0,
-                duration: .4,
-                ease: "back.out(2.4)",
+            gsap.from(item, {
+                opacity: 0,
+                x: -12,
+                duration: .45,
                 scrollTrigger: {
                     trigger: item,
                     start: "top 92%",
                     once: true
                 }
             });
-        }
-    });
 
-    document.querySelectorAll("[data-count]").forEach(el => {
+            const d = item.querySelector(".path-dot");
 
-        const counter = { value: 0 };
-
-        ScrollTrigger.create({
-            trigger: el,
-            start: "top 88%",
-            once: true,
-            onEnter: () => {
-                gsap.to(counter, {
-                    value: Number(el.dataset.count),
-                    duration: 1,
-                    onUpdate() {
-                        el.textContent =
-                            Math.round(counter.value) +
-                            (el.dataset.suffix || "");
+            if (d) {
+                gsap.from(d, {
+                    scale: 0,
+                    duration: .4,
+                    ease: "back.out(2.4)",
+                    scrollTrigger: {
+                        trigger: item,
+                        start: "top 92%",
+                        once: true
                     }
                 });
             }
         });
-    });
+    } else {
+        document.querySelectorAll(".path-item").forEach(el => {
+            el.style.opacity = 1;
+            el.style.transform = "none";
+        });
+    }
 
+    // ==========================
+    // COUNTERS
+    // ==========================
+    if (!isMobile) {
+        document.querySelectorAll("[data-count]").forEach(el => {
 
+            const counter = { value: 0 };
 
-    gsap.from(".cta-strip", {
-        opacity: 0,
-        y: 24,
-        scrollTrigger: {
-            trigger: ".cta-strip",
-            start: "top 92%",
-            once: true
-        }
-    });
+            ScrollTrigger.create({
+                trigger: el,
+                start: "top 88%",
+                once: true,
+                onEnter: () => {
+                    gsap.to(counter, {
+                        value: Number(el.dataset.count),
+                        duration: 1,
+                        onUpdate() {
+                            el.textContent =
+                                Math.round(counter.value) +
+                                (el.dataset.suffix || "");
+                        }
+                    });
+                }
+            });
+        });
+    }
 
+    // ==========================
+    // CTA
+    // ==========================
+    if (!isMobile) {
+        gsap.from(".cta-strip", {
+            opacity: 0,
+            y: 24,
+            scrollTrigger: {
+                trigger: ".cta-strip",
+                start: "top 92%",
+                once: true
+            }
+        });
+    }
+
+    // ==========================
+    // HORIZONTAL GALLERY
+    // ==========================
     const wrapper = document.querySelector(".gallery-wrapper");
     const track = document.querySelector(".gallery-track");
 
@@ -171,7 +210,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (!wrapper || !track) return;
 
         if (tween) tween.kill();
-        ScrollTrigger.getById?.("gallery")?.kill();
+        ScrollTrigger?.getById?.("gallery")?.kill();
 
         gsap.set(track, { x: 0 });
 
@@ -198,14 +237,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
     window.addEventListener("resize", () => {
         initGallery();
-        ScrollTrigger.refresh();
+        ScrollTrigger?.refresh();
     });
 
-
-
-    if (wrapper && tween && isFinePointer) {
+    // wheel control only desktop
+    if (wrapper && isFinePointer) {
 
         wrapper.addEventListener("wheel", (e) => {
+
+            if (!tween) return;
 
             e.preventDefault();
 

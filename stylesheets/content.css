@@ -373,27 +373,36 @@ footer{
 @media(max-width:520px){
   .hero-h1{font-size:clamp(30px,10vw,44px);}
   .m-stat .num{font-size:clamp(38px,15vw,58px);}
-.students{
- display: none;
 
-}
-.m-stat .label{
-  width: 80vw;
-}
-.m-photo {
-display: none;
-}
-p{
-  font-family: var(--mono);
-  text-transform: uppercase;
-  color: green!important;  
-  background: #000;
- }
- .hero-lead,
+  .students{display:none;}
+
+  .m-stat .label{width:80vw;}
+
+  .m-photo{display:none;}
+
+  /* ===== TEXT RESET ===== */
+  p{
+    font-family: var(--mono);
+    text-transform: uppercase;
+    color: var(--ink) !important;
+
+    /* WebKit / iOS fixes */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    -webkit-text-size-adjust: 100%;
+    text-rendering: optimizeLegibility;
+  }
+
+  .hero-lead,
   .intro-cols p,
   .track-feature p,
   .m-text {
     color: var(--ink);
+  }
+
+  /* Safari-specific fix (иногда помогает с “белым текстом”) */
+  body {
+    -webkit-text-fill-color: var(--ink);
   }
 }
 

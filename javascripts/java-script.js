@@ -1,22 +1,20 @@
 document.addEventListener("DOMContentLoaded", () => {
 
-    const dot = document.getElementById("cursor-dot");
-    const ring = document.getElementById("cursor-ring");
-
     const isTouch = window.matchMedia("(pointer: coarse)").matches;
     const isFinePointer = window.matchMedia("(pointer: fine)").matches;
     const isMobile = window.innerWidth <= 768 || isTouch;
     const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    const dot = document.getElementById("cursor-dot");
+    const ring = document.getElementById("cursor-ring");
 
     // ==========================
     // CURSOR (desktop only)
     // ==========================
     if (dot && ring && isFinePointer) {
 
-        let mouseX = 0;
-        let mouseY = 0;
-        let ringX = 0;
-        let ringY = 0;
+        let mouseX = 0, mouseY = 0;
+        let ringX = 0, ringY = 0;
 
         window.addEventListener("mousemove", (e) => {
             mouseX = e.clientX;
@@ -35,7 +33,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
             requestAnimationFrame(loop);
         }
-
         loop();
 
         document.querySelectorAll("a, .track-feature, .track-small, .work")
@@ -46,57 +43,42 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // ==========================
-    // WHATSAPP
+    // WHATSAPP LINKS
     // ==========================
-    const WA_LINK =
-        "https://wa.me/79167797756?text=%D0%A5%D0%BE%D1%87%D1%83%20%D0%BD%D0%B0%20%D0%BA%D0%BE%D0%BD%D1%81%D1%83%D0%BB%D1%8C%D1%82%D0%B0%D1%86%D0%B8%D1%8E";
+    const WA_LINK = "https://wa.me/79167797756?text=%D0%A5%D0%BE%D1%87%D1%83%20%D0%BD%D0%B0%20%D0%BA%D0%BE%D0%BD%D1%81%D1%83%D0%BB%D1%8C%D1%82%D0%B0%D1%86%D0%B8%D1%8E";
 
     document.querySelectorAll(
         ".nav-cta, .hero-right-cell .btn-main, .cta-strip .btn-invert"
     ).forEach(btn => {
         btn.href = WA_LINK;
         btn.target = "_blank";
-        btn.rel = "noopener";
+        btn.rel = "noopener noreferrer";
     });
 
     // ==========================
-    // GSAP GUARD (CRITICAL FIX)
+    // DISABLE ANIMATIONS ON MOBILE
     // ==========================
-    const disableGSAP = reduceMotion || !window.gsap || isMobile;
+    const disableGSAP = isMobile || reduceMotion || !window.gsap;
 
     if (disableGSAP) {
-
-        // instant counters
         document.querySelectorAll("[data-count]").forEach(el => {
             el.textContent = el.dataset.count + (el.dataset.suffix || "");
         });
 
-        // FIX: убираем hidden элементы, иначе "пустые блоки"
-        document.querySelectorAll(".reveal, .path-item").forEach(el => {
+        document.querySelectorAll(".reveal").forEach(el => {
             el.style.opacity = 1;
             el.style.transform = "none";
         });
 
-        // IMPORTANT: чтобы mobile layout пересчитался
-        window.addEventListener("load", () => {
-            window.dispatchEvent(new Event("resize"));
+        document.querySelectorAll(".path-item").forEach(el => {
+            el.style.opacity = 1;
+            el.style.transform = "none";
         });
 
         return;
     }
 
     gsap.registerPlugin(ScrollTrigger);
-
-    // ==========================
-    // IMPORTANT FIX (YOUR BUG)
-    // ==========================
-    window.addEventListener("load", () => {
-        ScrollTrigger.refresh(true);
-    });
-
-    setTimeout(() => {
-        ScrollTrigger.refresh(true);
-    }, 300);
 
     // ==========================
     // HERO
@@ -114,45 +96,44 @@ document.addEventListener("DOMContentLoaded", () => {
     gsap.set(".reveal", { opacity: 0, y: 22 });
 
     ScrollTrigger.batch(".reveal", {
-        start: "top 88%",
+        start: "top 85%",
         once: true,
         onEnter: batch => {
             gsap.to(batch, {
                 opacity: 1,
                 y: 0,
-                duration: .6,
-                stagger: .08,
-                ease: "power3.out"
+                duration: 0.6,
+                stagger: 0.08
             });
         }
     });
 
     // ==========================
-    // PATH (safe)
+    // PATH
     // ==========================
     gsap.utils.toArray(".path-item").forEach(item => {
 
         gsap.from(item, {
             opacity: 0,
             x: -12,
-            duration: .45,
+            duration: 0.45,
             scrollTrigger: {
                 trigger: item,
-                start: "top 92%",
+                start: "top 85%",
                 once: true
             }
         });
 
-        const dotEl = item.querySelector(".path-dot");
+        const dot = item.querySelector(".path-dot");
 
-        if (dotEl) {
-            gsap.from(dotEl, {
+        if (dot) {
+            gsap.from(dot, {
                 scale: 0,
-                duration: .4,
+                duration: 0.4,
                 ease: "back.out(2.4)",
                 scrollTrigger: {
                     trigger: item,
-                    start: "top 92%",
+                    start: "top 85%",
                     once: true
                 }
             });
@@ -164,20 +145,18 @@ document.addEventListener("DOMContentLoaded", () => {
     // ==========================
     document.querySelectorAll("[data-count]").forEach(el => {
 
-        const counter = { value: 0 };
+        const obj = { v: 0 };
 
         ScrollTrigger.create({
             trigger: el,
-            start: "top 88%",
+            start: "top 85%",
             once: true,
             onEnter: () => {
-                gsap.to(counter, {
-                    value: Number(el.dataset.count),
+                gsap.to(obj, {
+                    v: Number(el.dataset.count),
                     duration: 1,
-                    onUpdate() {
-                        el.textContent =
-                            Math.round(counter.value) +
-                            (el.dataset.suffix || "");
+                    onUpdate: () => {
+                        el.textContent = Math.round(obj.v) + (el.dataset.suffix || "");
                     }
                 });
             }
@@ -192,26 +171,25 @@ document.addEventListener("DOMContentLoaded", () => {
         y: 24,
         scrollTrigger: {
             trigger: ".cta-strip",
-            start: "top 92%",
+            start: "top 90%",
             once: true
         }
     });
 
     // ==========================
-    // GALLERY (UNCHANGED — SAFE)
+    // HORIZONTAL GALLERY (FIXED + SAFE)
     // ==========================
     const wrapper = document.querySelector(".gallery-wrapper");
     const track = document.querySelector(".gallery-track");
 
-    let tween;
+    let tween = null;
     let maxScroll = 0;
 
     function initGallery() {
-
         if (!wrapper || !track) return;
 
         if (tween) tween.kill();
-        ScrollTrigger.getById?.("gallery")?.kill();
+        ScrollTrigger.getById("gallery")?.kill();
 
         gsap.set(track, { x: 0 });
 
@@ -241,21 +219,22 @@ document.addEventListener("DOMContentLoaded", () => {
         ScrollTrigger.refresh();
     });
 
-    // wheel control (desktop only)
+    // IMPORTANT FIX:
+    // wheel ONLY if tween exists AND not mobile
     if (wrapper && isFinePointer) {
-
         wrapper.addEventListener("wheel", (e) => {
 
-            if (!tween) return;
+            if (!tween || !tween.scrollTrigger) return;
 
             e.preventDefault();
 
             const st = tween.scrollTrigger;
             const current = st.progress * maxScroll;
 
-            let next = current + e.deltaY * 0.6;
-
-            next = Math.max(0, Math.min(maxScroll, next));
+            const next = Math.max(
+                0,
+                Math.min(maxScroll, current + e.deltaY * 0.6)
+            );
 
             st.scroll(
                 st.start + (next / maxScroll) * (st.end - st.start)

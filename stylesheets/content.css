@@ -20,6 +20,7 @@ html, body{
 p{
   font-family: var(--mono);
   text-transform: uppercase; 
+  color: #0A0A0A;
  }
 
 #integriruemtext{

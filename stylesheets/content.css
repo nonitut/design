@@ -358,18 +358,17 @@ footer{
 @media(max-width:520px){
 .hero-h1{font-size:clamp(30px,10vw,44px);
 color: #fff!important;}
-
-  .hero-lead, .intro-cols p, .track-feature p,  .m-text, .path-item, .path-h, .path-n,  .path-t {
+.hero-lead, .intro-cols p, .track-feature p,  .m-text, .path-item, .path-h, .path-n,  .path-t {
     color: var(--ink);
-  }
-
+ }
   .students {
     display: none;
   }
-
   .m-photo {
     display: none;
   }
+  .mosaic{
+      display: none;
 }
 
 @media (prefers-reduced-motion: reduce){ *{transition:none !important;} }

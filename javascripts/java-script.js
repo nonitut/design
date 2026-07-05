@@ -4,11 +4,8 @@ document.addEventListener("DOMContentLoaded", () => {
     const ring = document.getElementById("cursor-ring");
 
     if (dot && ring) {
-
-        let mouseX = 0;
-        let mouseY = 0;
-        let ringX = 0;
-        let ringY = 0;
+        let mouseX = 0, mouseY = 0;
+        let ringX = 0, ringY = 0;
 
         window.addEventListener("mousemove", (e) => {
             mouseX = e.clientX;
@@ -17,15 +14,13 @@ document.addEventListener("DOMContentLoaded", () => {
             dot.style.top = mouseY + "px";
         });
 
-        function loop() {
+        (function loop() {
             ringX += (mouseX - ringX) * 0.18;
             ringY += (mouseY - ringY) * 0.18;
             ring.style.left = ringX + "px";
             ring.style.top = ringY + "px";
             requestAnimationFrame(loop);
-        }
-
-        loop();
+        })();
 
         document.querySelectorAll("a, .track-feature, .track-small, .work").forEach(el => {
             el.addEventListener("mouseenter", () => ring.classList.add("big"));
@@ -53,163 +48,140 @@ document.addEventListener("DOMContentLoaded", () => {
 
     gsap.registerPlugin(ScrollTrigger);
 
-    if (!isMobile) {
-        gsap.timeline({ defaults: { ease: "power3.out" } })
-            .from(".hero-kicker", { opacity: 0, y: 14, duration: .5 })
-            .from(".hero-h1", { opacity: 0, y: 26, duration: .7 }, "-=0.25")
-            .from(".hero-lead", { opacity: 0, y: 14, duration: .5 }, "-=0.35")
-            .from(".hero-right-cell", { opacity: 0, x: 18, duration: .5 }, "-=0.4");
-    }
+    gsap.timeline({ defaults: { ease: "power3.out" } })
+        .from(".hero-kicker", { opacity: 0, y: 14, duration: .5 })
+        .from(".hero-h1", { opacity: 0, y: 26, duration: .7 }, "-=0.25")
+        .from(".hero-lead", { opacity: 0, y: 14, duration: .5 }, "-=0.35")
+        .from(".hero-right-cell", { opacity: 0, x: 18, duration: .5 }, "-=0.4");
 
-    if (!isMobile) {
+    gsap.set(".reveal", { opacity: 0, y: 22 });
 
-        gsap.set(".reveal", { opacity: 0, y: 22 });
+    ScrollTrigger.batch(".reveal", {
+        start: "top 85%",
+        once: true,
+        onEnter: (batch) => {
+            gsap.to(batch, {
+                opacity: 1,
+                y: 0,
+                duration: 0.6,
+                stagger: 0.08
+            });
+        }
+    });
 
-        ScrollTrigger.batch(".reveal", {
-            start: "top 85%",
-            once: true,
-            onEnter: batch => {
-                gsap.to(batch, {
-                    opacity: 1,
-                    y: 0,
-                    duration: .6,
-                    stagger: .08
-                });
+    gsap.utils.toArray(".path-item").forEach(item => {
+        gsap.from(item, {
+            opacity: 0,
+            x: -12,
+            scrollTrigger: {
+                trigger: item,
+                start: "top 85%",
+                once: true
             }
         });
 
-        gsap.utils.toArray(".path-item").forEach(item => {
+        const d = item.querySelector(".path-dot");
 
-            gsap.from(item, {
-                opacity: 0,
-                x: -12,
-                duration: .45,
+        if (d) {
+            gsap.from(d, {
+                scale: 0,
+                duration: 0.4,
+                ease: "back.out(2.4)",
                 scrollTrigger: {
                     trigger: item,
                     start: "top 85%",
                     once: true
                 }
             });
+        }
+    });
 
-            const d = item.querySelector(".path-dot");
+    document.querySelectorAll("[data-count]").forEach(el => {
+        const obj = { v: 0 };
 
-            if (d) {
-                gsap.from(d, {
-                    scale: 0,
-                    duration: .4,
-                    ease: "back.out(2.4)",
-                    scrollTrigger: {
-                        trigger: item,
-                        start: "top 85%",
-                        once: true
+        ScrollTrigger.create({
+            trigger: el,
+            start: "top 85%",
+            once: true,
+            onEnter: () => {
+                gsap.to(obj, {
+                    v: Number(el.dataset.count),
+                    duration: 1,
+                    onUpdate: () => {
+                        el.textContent = Math.round(obj.v) + (el.dataset.suffix || "");
                     }
                 });
             }
         });
-
-        document.querySelectorAll("[data-count]").forEach(el => {
-
-            const obj = { v: 0 };
-
-            ScrollTrigger.create({
-                trigger: el,
-                start: "top 85%",
-                once: true,
-                onEnter: () => {
-                    gsap.to(obj, {
-                        v: Number(el.dataset.count),
-                        duration: 1,
-                        onUpdate: () => {
-                            el.textContent = Math.round(obj.v) + (el.dataset.suffix || "");
-                        }
-                    });
-                }
-            });
-        });
-
-        gsap.from(".cta-strip", {
-            opacity: 0,
-            y: 24,
-            scrollTrigger: {
-                trigger: ".cta-strip",
-                start: "top 90%",
-                once: true
-            }
-        });
-    }
+    });
 
     const wrapper = document.querySelector(".gallery-wrapper");
     const track = document.querySelector(".gallery-track");
 
-    if (wrapper && track) {
+    let tween;
 
-        let tween;
-        let maxScroll = 0;
+    function initGallery() {
+        if (!wrapper || !track) return;
 
-        function calc() {
-            maxScroll = track.scrollWidth - window.innerWidth;
-        }
+        if (tween) tween.kill();
+        ScrollTrigger.getById("gallery")?.kill();
 
-        function init() {
+        gsap.set(track, { x: 0 });
 
-            if (tween) tween.kill();
-            ScrollTrigger.getById("gallery")?.kill();
+        const maxScroll = track.scrollWidth - window.innerWidth;
 
-            gsap.set(track, { x: 0 });
+        if (maxScroll <= 0) return;
 
-            calc();
+        tween = gsap.to(track, {
+            x: -maxScroll,
+            ease: "none",
+            scrollTrigger: {
+                id: "gallery",
+                trigger: wrapper,
+                start: "top top",
+                end: () => "+=" + maxScroll,
+                pin: true,
+                scrub: 1,
+                invalidateOnRefresh: true
+            }
+        });
+    }
 
-            if (maxScroll <= 0) return;
+    function waitImages() {
+        const imgs = document.querySelectorAll(".gallery-track img");
+        let loaded = 0;
 
-            tween = gsap.to(track, {
-                x: -maxScroll,
-                ease: "none",
-                scrollTrigger: {
-                    id: "gallery",
-                    trigger: wrapper,
-                    start: "top top",
-                    end: () => "+=" + maxScroll,
-                    pin: true,
-                    scrub: 1,
-                    invalidateOnRefresh: true
-                }
-            });
-
+        if (!imgs.length) {
+            initGallery();
             ScrollTrigger.refresh();
+            return;
         }
 
-        function debounce(fn, t) {
-            let id;
-            return () => {
-                clearTimeout(id);
-                id = setTimeout(fn, t);
-            };
-        }
-
-        init();
-
-        window.addEventListener("resize", debounce(init, 150));
-
-        window.addEventListener("load", () => {
-            init();
+        imgs.forEach(img => {
+            if (img.complete) {
+                loaded++;
+            } else {
+                img.onload = () => {
+                    loaded++;
+                    if (loaded === imgs.length) {
+                        initGallery();
+                        ScrollTrigger.refresh();
+                    }
+                };
+            }
         });
 
-        if (!isMobile) {
-            wrapper.addEventListener("wheel", (e) => {
-
-                if (!tween) return;
-
-                e.preventDefault();
-
-                const st = tween.scrollTrigger;
-                const current = st.progress * maxScroll;
-
-                let next = current + e.deltaY * 0.6;
-                next = Math.max(0, Math.min(maxScroll, next));
-
-                st.scroll(st.start + (next / maxScroll) * (st.end - st.start));
-
-            }, { passive: false });
+        if (loaded === imgs.length) {
+            initGallery();
+            ScrollTrigger.refresh();
         }
     }
+
+    waitImages();
+
+    window.addEventListener("resize", () => {
+        initGallery();
+        ScrollTrigger.refresh();
+    });
+
 });

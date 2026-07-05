@@ -370,6 +370,10 @@ color: #fff!important;}
   .mosaic{
       display: none;
 }
+  .hero-facts{
+     display: none;
+  }
+}
 
 @media (prefers-reduced-motion: reduce){ *{transition:none !important;} }
 

@@ -373,10 +373,6 @@ color: var(--ink)!important;
     text-transform: uppercase;
     color: var(--ink)!important;
 
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    -webkit-text-size-adjust: 100%;
-    text-rendering: optimizeLegibility;
   }
 
   .hero-lead,
@@ -384,11 +380,6 @@ color: var(--ink)!important;
   .track-feature p,
   .m-text {
     color: var(--ink);
-  }
-
-  /* Safari-specific fix (иногда помогает с “белым текстом”) */
-  body {
-    -webkit-text-fill-color: var(--ink);
   }
 }
 

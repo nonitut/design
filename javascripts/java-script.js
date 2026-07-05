@@ -1,12 +1,12 @@
 document.addEventListener("DOMContentLoaded", () => {
 
+    const dot = document.getElementById("cursor-dot");
+    const ring = document.getElementById("cursor-ring");
+
     const isTouch = window.matchMedia("(pointer: coarse)").matches;
     const isFinePointer = window.matchMedia("(pointer: fine)").matches;
     const isMobile = window.innerWidth <= 768 || isTouch;
     const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-
-    const dot = document.getElementById("cursor-dot");
-    const ring = document.getElementById("cursor-ring");
 
     // ==========================
     // CURSOR (desktop only)
@@ -38,14 +38,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
         loop();
 
-        document.querySelectorAll("a, .track-feature, .track-small, .work").forEach(el => {
-            el.addEventListener("mouseenter", () => ring.classList.add("big"));
-            el.addEventListener("mouseleave", () => ring.classList.remove("big"));
-        });
+        document.querySelectorAll("a, .track-feature, .track-small, .work")
+            .forEach(el => {
+                el.addEventListener("mouseenter", () => ring.classList.add("big"));
+                el.addEventListener("mouseleave", () => ring.classList.remove("big"));
+            });
     }
 
     // ==========================
-    // WA LINKS
+    // WHATSAPP
     // ==========================
     const WA_LINK =
         "https://wa.me/79167797756?text=%D0%A5%D0%BE%D1%87%D1%83%20%D0%BD%D0%B0%20%D0%BA%D0%BE%D0%BD%D1%81%D1%83%D0%BB%D1%8C%D1%82%D0%B0%D1%86%D0%B8%D1%8E";
@@ -55,23 +56,30 @@ document.addEventListener("DOMContentLoaded", () => {
     ).forEach(btn => {
         btn.href = WA_LINK;
         btn.target = "_blank";
-        btn.rel = "noopener noreferrer";
+        btn.rel = "noopener";
     });
 
     // ==========================
-    // GSAP GUARD
+    // GSAP GUARD (CRITICAL FIX)
     // ==========================
-    const disableAnimations = isMobile || reduceMotion || !window.gsap;
+    const disableGSAP = reduceMotion || !window.gsap || isMobile;
 
-    if (disableAnimations) {
+    if (disableGSAP) {
 
+        // instant counters
         document.querySelectorAll("[data-count]").forEach(el => {
             el.textContent = el.dataset.count + (el.dataset.suffix || "");
         });
 
+        // FIX: убираем hidden элементы, иначе "пустые блоки"
         document.querySelectorAll(".reveal, .path-item").forEach(el => {
             el.style.opacity = 1;
             el.style.transform = "none";
+        });
+
+        // IMPORTANT: чтобы mobile layout пересчитался
+        window.addEventListener("load", () => {
+            window.dispatchEvent(new Event("resize"));
         });
 
         return;
@@ -80,7 +88,7 @@ document.addEventListener("DOMContentLoaded", () => {
     gsap.registerPlugin(ScrollTrigger);
 
     // ==========================
-    // IMPORTANT FIX: layout stabilisation
+    // IMPORTANT FIX (YOUR BUG)
     // ==========================
     window.addEventListener("load", () => {
         ScrollTrigger.refresh(true);
@@ -103,31 +111,31 @@ document.addEventListener("DOMContentLoaded", () => {
     // ==========================
     // REVEAL
     // ==========================
-    gsap.set(".reveal", { opacity: 0, y: 18 });
+    gsap.set(".reveal", { opacity: 0, y: 22 });
 
     ScrollTrigger.batch(".reveal", {
-        start: "top 90%",
+        start: "top 88%",
         once: true,
         onEnter: batch => {
             gsap.to(batch, {
                 opacity: 1,
                 y: 0,
-                duration: .5,
-                stagger: .06,
-                ease: "power2.out"
+                duration: .6,
+                stagger: .08,
+                ease: "power3.out"
             });
         }
     });
 
     // ==========================
-    // PATH ITEMS (FIXED START POINT)
+    // PATH (safe)
     // ==========================
     gsap.utils.toArray(".path-item").forEach(item => {
 
         gsap.from(item, {
             opacity: 0,
-            y: 10,
-            duration: .4,
+            x: -12,
+            duration: .45,
             scrollTrigger: {
                 trigger: item,
                 start: "top 92%",
@@ -140,8 +148,8 @@ document.addEventListener("DOMContentLoaded", () => {
         if (dotEl) {
             gsap.from(dotEl, {
                 scale: 0,
-                duration: .35,
-                ease: "back.out(2.2)",
+                duration: .4,
+                ease: "back.out(2.4)",
                 scrollTrigger: {
                     trigger: item,
                     start: "top 92%",
@@ -156,22 +164,20 @@ document.addEventListener("DOMContentLoaded", () => {
     // ==========================
     document.querySelectorAll("[data-count]").forEach(el => {
 
-        const target = Number(el.dataset.count || 0);
-        const suffix = el.dataset.suffix || "";
+        const counter = { value: 0 };
 
         ScrollTrigger.create({
             trigger: el,
-            start: "top 90%",
+            start: "top 88%",
             once: true,
             onEnter: () => {
-
-                const counter = { v: 0 };
-
                 gsap.to(counter, {
-                    v: target,
+                    value: Number(el.dataset.count),
                     duration: 1,
-                    onUpdate: () => {
-                        el.textContent = Math.round(counter.v) + suffix;
+                    onUpdate() {
+                        el.textContent =
+                            Math.round(counter.value) +
+                            (el.dataset.suffix || "");
                     }
                 });
             }
@@ -183,7 +189,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // ==========================
     gsap.from(".cta-strip", {
         opacity: 0,
-        y: 20,
+        y: 24,
         scrollTrigger: {
             trigger: ".cta-strip",
             start: "top 92%",
@@ -192,7 +198,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     // ==========================
-    // GALLERY (SAFE VERSION)
+    // GALLERY (UNCHANGED — SAFE)
     // ==========================
     const wrapper = document.querySelector(".gallery-wrapper");
     const track = document.querySelector(".gallery-track");
@@ -211,7 +217,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         maxScroll = track.scrollWidth - window.innerWidth;
 
-        if (maxScroll <= 0 || isMobile) return;
+        if (maxScroll <= 0) return;
 
         tween = gsap.to(track, {
             x: -maxScroll,
@@ -235,7 +241,7 @@ document.addEventListener("DOMContentLoaded", () => {
         ScrollTrigger.refresh();
     });
 
-    // desktop wheel only
+    // wheel control (desktop only)
     if (wrapper && isFinePointer) {
 
         wrapper.addEventListener("wheel", (e) => {
@@ -248,11 +254,11 @@ document.addEventListener("DOMContentLoaded", () => {
             const current = st.progress * maxScroll;
 
             let next = current + e.deltaY * 0.6;
+
             next = Math.max(0, Math.min(maxScroll, next));
 
             st.scroll(
-                st.start +
-                (next / maxScroll) * (st.end - st.start)
+                st.start + (next / maxScroll) * (st.end - st.start)
             );
 
         }, { passive: false });

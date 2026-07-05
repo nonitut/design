@@ -334,7 +334,7 @@ footer{
   font-family:var(--mono); font-size:10.5px; color:var(--grey); text-transform:uppercase; letter-spacing:0.05em;
 }
 
-/* ===== RESPONSIVE / ADAPTATION ===== */
+
 @media(max-width:900px){
   .hero-grid{grid-template-columns:1fr;}
   .hero-left{border-right:none; border-bottom:1px solid var(--line);}
@@ -368,6 +368,8 @@ footer{
   .about-grid{grid-template-columns:1fr;}
   .about-left{border-right:none; border-bottom:1px solid var(--line);}
 }
+
+
 @media(max-width:520px){
   .hero-h1{font-size:clamp(30px,10vw,44px);}
   .m-stat .num{font-size:clamp(38px,15vw,58px);}
@@ -381,11 +383,18 @@ footer{
 .m-photo {
 display: none;
 }
-    p{
+p{
   font-family: var(--mono);
   text-transform: uppercase;
   color: green!important;  
+  background: #000;
  }
+ .hero-lead,
+  .intro-cols p,
+  .track-feature p,
+  .m-text {
+    color: var(--ink);
+  }
 }
 
 @media (prefers-reduced-motion: reduce){ *{transition:none !important;} }

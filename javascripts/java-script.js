@@ -3,11 +3,14 @@ document.addEventListener("DOMContentLoaded", () => {
     const isTouch = window.matchMedia("(pointer: coarse)").matches;
     const isFinePointer = window.matchMedia("(pointer: fine)").matches;
     const isMobile = window.innerWidth <= 768 || isTouch;
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
     const dot = document.getElementById("cursor-dot");
     const ring = document.getElementById("cursor-ring");
 
-
+    // ==========================
+    // CURSOR (desktop only)
+    // ==========================
     if (dot && ring && isFinePointer) {
 
         let mouseX = 0;
@@ -41,7 +44,9 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-
+    // ==========================
+    // WA LINKS
+    // ==========================
     const WA_LINK =
         "https://wa.me/79167797756?text=%D0%A5%D0%BE%D1%87%D1%83%20%D0%BD%D0%B0%20%D0%BA%D0%BE%D0%BD%D1%81%D1%83%D0%BB%D1%8C%D1%82%D0%B0%D1%86%D0%B8%D1%8E";
 
@@ -53,131 +58,142 @@ document.addEventListener("DOMContentLoaded", () => {
         btn.rel = "noopener noreferrer";
     });
 
-
-    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-
+    // ==========================
+    // GSAP GUARD
+    // ==========================
     const disableAnimations = isMobile || reduceMotion || !window.gsap;
 
-    // instant counters fallback
     if (disableAnimations) {
+
         document.querySelectorAll("[data-count]").forEach(el => {
             el.textContent = el.dataset.count + (el.dataset.suffix || "");
         });
-    }
 
-    if (disableAnimations || !window.gsap) {
-        // быстрый reveal без анимаций
-        document.querySelectorAll(".reveal").forEach(el => {
+        document.querySelectorAll(".reveal, .path-item").forEach(el => {
             el.style.opacity = 1;
             el.style.transform = "none";
         });
+
         return;
     }
 
     gsap.registerPlugin(ScrollTrigger);
 
+    // ==========================
+    // IMPORTANT FIX: layout stabilisation
+    // ==========================
+    window.addEventListener("load", () => {
+        ScrollTrigger.refresh(true);
+    });
 
-    if (!isMobile) {
-        gsap.timeline({ defaults: { ease: "power3.out" } })
-            .from(".hero-kicker", { opacity: 0, y: 14, duration: .5 })
-            .from(".hero-h1", { opacity: 0, y: 26, duration: .7 }, "-=0.25")
-            .from(".hero-lead", { opacity: 0, y: 14, duration: .5 }, "-=0.35")
-            .from(".hero-right-cell", { opacity: 0, x: 18, duration: .5 }, "-=0.4")
-            .from(".eyebrow-row", { opacity: 0, duration: .4 }, 0);
-    }
+    setTimeout(() => {
+        ScrollTrigger.refresh(true);
+    }, 300);
 
-    if (!isMobile) {
-        gsap.set(".reveal", { opacity: 0, y: 22 });
+    // ==========================
+    // HERO
+    // ==========================
+    gsap.timeline({ defaults: { ease: "power3.out" } })
+        .from(".hero-kicker", { opacity: 0, y: 14, duration: .5 })
+        .from(".hero-h1", { opacity: 0, y: 26, duration: .7 }, "-=0.25")
+        .from(".hero-lead", { opacity: 0, y: 14, duration: .5 }, "-=0.35")
+        .from(".hero-right-cell", { opacity: 0, x: 18, duration: .5 }, "-=0.4")
+        .from(".eyebrow-row", { opacity: 0, duration: .4 }, 0);
 
-        ScrollTrigger.batch(".reveal", {
-            start: "top 88%",
-            once: true,
-            onEnter: batch => {
-                gsap.to(batch, {
-                    opacity: 1,
-                    y: 0,
-                    duration: .6,
-                    stagger: .08,
-                    ease: "power3.out"
-                });
+    // ==========================
+    // REVEAL
+    // ==========================
+    gsap.set(".reveal", { opacity: 0, y: 18 });
+
+    ScrollTrigger.batch(".reveal", {
+        start: "top 90%",
+        once: true,
+        onEnter: batch => {
+            gsap.to(batch, {
+                opacity: 1,
+                y: 0,
+                duration: .5,
+                stagger: .06,
+                ease: "power2.out"
+            });
+        }
+    });
+
+    // ==========================
+    // PATH ITEMS (FIXED START POINT)
+    // ==========================
+    gsap.utils.toArray(".path-item").forEach(item => {
+
+        gsap.from(item, {
+            opacity: 0,
+            y: 10,
+            duration: .4,
+            scrollTrigger: {
+                trigger: item,
+                start: "top 92%",
+                once: true
             }
         });
-    }
 
-    if (!isMobile) {
-        gsap.utils.toArray(".path-item").forEach(item => {
+        const dotEl = item.querySelector(".path-dot");
 
-            gsap.from(item, {
-                opacity: 0,
-                x: -12,
-                duration: .45,
+        if (dotEl) {
+            gsap.from(dotEl, {
+                scale: 0,
+                duration: .35,
+                ease: "back.out(2.2)",
                 scrollTrigger: {
                     trigger: item,
-                    start: "top 50%",
+                    start: "top 92%",
                     once: true
                 }
             });
+        }
+    });
 
-            const d = item.querySelector(".path-dot");
+    // ==========================
+    // COUNTERS
+    // ==========================
+    document.querySelectorAll("[data-count]").forEach(el => {
 
-            if (d) {
-                gsap.from(d, {
-                    scale: 0,
-                    duration: .4,
-                    ease: "back.out(2.4)",
-                    scrollTrigger: {
-                        trigger: item,
-                        start: "top 50%",
-                        once: true
+        const target = Number(el.dataset.count || 0);
+        const suffix = el.dataset.suffix || "";
+
+        ScrollTrigger.create({
+            trigger: el,
+            start: "top 90%",
+            once: true,
+            onEnter: () => {
+
+                const counter = { v: 0 };
+
+                gsap.to(counter, {
+                    v: target,
+                    duration: 1,
+                    onUpdate: () => {
+                        el.textContent = Math.round(counter.v) + suffix;
                     }
                 });
             }
         });
-    } else {
-        document.querySelectorAll(".path-item").forEach(el => {
-            el.style.opacity = 1;
-            el.style.transform = "none";
-        });
-    }
+    });
 
+    // ==========================
+    // CTA
+    // ==========================
+    gsap.from(".cta-strip", {
+        opacity: 0,
+        y: 20,
+        scrollTrigger: {
+            trigger: ".cta-strip",
+            start: "top 92%",
+            once: true
+        }
+    });
 
-    if (!isMobile) {
-        document.querySelectorAll("[data-count]").forEach(el => {
-
-            const counter = { value: 0 };
-
-            ScrollTrigger.create({
-                trigger: el,
-                start: "top 50%",
-                once: true,
-                onEnter: () => {
-                    gsap.to(counter, {
-                        value: Number(el.dataset.count),
-                        duration: 1,
-                        onUpdate() {
-                            el.textContent =
-                                Math.round(counter.value) +
-                                (el.dataset.suffix || "");
-                        }
-                    });
-                }
-            });
-        });
-    }
-
-    if (!isMobile) {
-        gsap.from(".cta-strip", {
-            opacity: 0,
-            y: 24,
-            scrollTrigger: {
-                trigger: ".cta-strip",
-                start: "top 50%",
-                once: true
-            }
-        });
-    }
-
-
+    // ==========================
+    // GALLERY (SAFE VERSION)
+    // ==========================
     const wrapper = document.querySelector(".gallery-wrapper");
     const track = document.querySelector(".gallery-track");
 
@@ -189,13 +205,13 @@ document.addEventListener("DOMContentLoaded", () => {
         if (!wrapper || !track) return;
 
         if (tween) tween.kill();
-        ScrollTrigger?.getById?.("gallery")?.kill();
+        ScrollTrigger.getById?.("gallery")?.kill();
 
         gsap.set(track, { x: 0 });
 
         maxScroll = track.scrollWidth - window.innerWidth;
 
-        if (maxScroll <= 0) return;
+        if (maxScroll <= 0 || isMobile) return;
 
         tween = gsap.to(track, {
             x: -maxScroll,
@@ -216,10 +232,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
     window.addEventListener("resize", () => {
         initGallery();
-        ScrollTrigger?.refresh();
+        ScrollTrigger.refresh();
     });
 
-    // wheel control only desktop
+    // desktop wheel only
     if (wrapper && isFinePointer) {
 
         wrapper.addEventListener("wheel", (e) => {
